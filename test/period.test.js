@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { JSDOM, VirtualConsole } = require('jsdom');
+const { JSDOM, VirtualConsole } = require(process.env.JSDOM_PATH || 'jsdom');
 const ROOT = '/Users/lizhihua03/work/code/github/mstock';
 const vc = new VirtualConsole(); vc.on('jsdomError', () => {}); vc.on('log', (...a) => console.log('[page]', ...a));
 const html = fs.readFileSync(path.join(ROOT, 'popup.html'), 'utf8').replace(/<script[^>]*src="[^"]*"[^>]*><\/script>/g, '');

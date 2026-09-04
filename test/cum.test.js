@@ -1,6 +1,6 @@
 const fs = require('fs');
 const path = require('path');
-const { JSDOM, VirtualConsole } = require('jsdom');
+const { JSDOM, VirtualConsole } = require(process.env.JSDOM_PATH || 'jsdom');
 const ROOT = '/Users/lizhihua03/work/code/github/mstock';
 const vc = new VirtualConsole(); vc.on('jsdomError', () => {});
 const dom = new JSDOM('<div id="c" style="width:600px;height:400px"></div>', { url: 'http://localhost/x.html', pretendToBeVisual: true, virtualConsole: vc, runScripts: 'outside-only' });
