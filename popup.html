@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>股市速览</title>
+  <link rel="stylesheet" href="src/css/popup.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">📈 股市速览</div>
+    <div id="indexTicker" class="ticker"></div>
+  </header>
+
+  <div class="searchbox">
+    <input id="searchInput" type="text" placeholder="搜索代码/名称/拼音，如 600519 / 茅台 / maotai / AAPL" autocomplete="off" spellcheck="false" />
+    <button id="searchBtn" title="搜索">🔍</button>
+    <div id="searchResults" class="search-results hidden"></div>
+  </div>
+
+  <div class="listhead">
+    <span>自选股</span>
+    <span id="editBtn" class="link">管理</span>
+  </div>
+
+  <main id="stockList" class="stock-list"></main>
+
+  <footer class="footbar">
+    <span id="statusText">数据来源：腾讯行情</span>
+    <span id="refreshBtn" class="link">刷新</span>
+    <span id="openDash" class="link">打开面板 ↗</span>
+  </footer>
+
+  <div id="detailOverlay" class="overlay hidden">
+    <div class="dialog">
+      <header class="dlg-head">
+        <span id="dName" class="dlg-name">--</span>
+        <span id="dMarket" class="mk">--</span>
+        <span id="dCode" class="dlg-code">--</span>
+        <span id="dWatch" class="dlg-watch" title="加入/移除自选">☆</span>
+        <span id="dClose" class="dlg-close" title="关闭">✕</span>
+      </header>
+      <div class="dlg-quote">
+        <span id="dPrice" class="dlg-price">--</span>
+        <span id="dChange" class="dlg-change">-- --</span>
+        <span id="dStats" class="dlg-stats"></span>
+        <span id="dStatus" class="dlg-status">--</span>
+      </div>
+      <nav class="dlg-tabs">
+        <span class="dtab active" data-range="trend">分时</span>
+        <span class="dtab" data-range="day">日K</span>
+        <span class="dtab" data-range="week">周K</span>
+        <span class="dtab" data-range="month">月K</span>
+        <span class="dtab" data-range="m5">5分K</span>
+        <span class="dtab" data-range="m30">30分K</span>
+        <span class="dtab" data-range="m60">60分K</span>
+      </nav>
+      <main id="dChart" class="dlg-chart"></main>
+      <div id="dErr" class="dlg-err hidden"></div>
+    </div>
+  </div>
+
+  <script src="vendor/echarts.min.js"></script>
+  <script src="src/js/format.js"></script>
+  <script src="src/js/api.js"></script>
+  <script src="src/js/storage.js"></script>
+  <script src="src/js/charts.js"></script>
+  <script src="src/js/popup.js"></script>
+</body>
+</html>

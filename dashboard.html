@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8" />
+  <title>股市速览 - 行情面板</title>
+  <link rel="stylesheet" href="src/css/dashboard.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">📈 股市速览</div>
+    <div class="searchbox">
+      <input id="searchInput" type="text" placeholder="搜索代码/名称/拼音，回车查看" autocomplete="off" spellcheck="false" />
+      <div id="searchResults" class="search-results hidden"></div>
+    </div>
+    <span id="watchBtn" class="watch-btn">☆ 加自选</span>
+  </header>
+
+  <section id="quoteHead" class="quote-head">
+    <div class="qh-left">
+      <span id="qName" class="q-name">--</span>
+      <span id="qMarket" class="mk">--</span>
+      <span id="qCode" class="q-code">--</span>
+      <span id="qStatus" class="q-status">--</span>
+    </div>
+    <div class="qh-price">
+      <span id="qPrice" class="q-price">--</span>
+      <span id="qChange" class="q-change">-- --</span>
+    </div>
+    <div id="qGrid" class="qh-grid"></div>
+  </section>
+
+  <nav class="chart-bar">
+    <div id="rangeTabs" class="tabs">
+      <span class="tab" data-range="trend">分时</span>
+      <span class="tab" data-range="m5">5分K</span>
+      <span class="tab" data-range="m30">30分K</span>
+      <span class="tab" data-range="m60">60分K</span>
+      <span class="tab" data-range="day">日K</span>
+      <span class="tab" data-range="week">周K</span>
+      <span class="tab" data-range="month">月K</span>
+    </div>
+    <div id="chartMeta" class="chart-meta"></div>
+    <span id="refreshBtn" class="link">刷新</span>
+  </nav>
+
+  <main id="chart" class="chart"></main>
+  <div id="errBox" class="errbox hidden"></div>
+
+  <script src="vendor/echarts.min.js"></script>
+  <script src="src/js/format.js"></script>
+  <script src="src/js/api.js"></script>
+  <script src="src/js/storage.js"></script>
+  <script src="src/js/charts.js"></script>
+  <script src="src/js/dashboard.js"></script>
+</body>
+</html>
