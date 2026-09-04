@@ -114,6 +114,21 @@
     const lastPrice = prices.length ? prices[prices.length - 1] : null;
     const curPct = pc != null && lastPrice != null ? ((lastPrice - pc) / pc) * 100 : null;
 
+    // 截止当前时刻累计成交量 vs 昨日同一时刻累计量
+    const cumVolNow = data.rows.length ? (data.rows[data.rows.length - 1].cumVol || 0) : 0;
+    let cumVolPrevSameTime = null;
+    if (data.prevRows && data.prevRows.length) {
+      const lastTime = data.rows[data.rows.length - 1].time;
+      const byTime = {};
+      for (const r of data.prevRows) byTime[r.time] = r;
+      const pr = byTime[lastTime];
+      if (pr && pr.cumVol > 0) cumVolPrevSameTime = pr.cumVol;
+    }
+    const cumGrowth = growth(cumVolNow, cumVolPrevSameTime);
+    const cumText = cumGrowth == null
+      ? ''
+      : '量较昨日 ' + (cumGrowth > 0 ? '+' : '') + cumGrowth.toFixed(1) + '%';
+
     chart.setOption({
       animation: false,
       tooltip: Object.assign(tooltipCSS(), {
@@ -136,15 +151,26 @@
           return html;
         },
       }),
-      graphic: curPct == null ? [] : [{
-        type: 'text', left: compact ? 56 : 68, top: compact ? 2 : 1,
-        style: {
-          text: '涨幅 ' + (curPct > 0 ? '+' : '') + curPct.toFixed(2) + '%',
-          fill: curPct > 0 ? UP : curPct < 0 ? DOWN : MUTED,
-          fontSize: compact ? 11 : 13,
-          fontWeight: 'bold',
-        },
-      }],
+      graphic: [
+        ...(curPct == null ? [] : [{
+          type: 'text', left: compact ? 56 : 68, top: compact ? 2 : 1,
+          style: {
+            text: '涨幅 ' + (curPct > 0 ? '+' : '') + curPct.toFixed(2) + '%',
+            fill: curPct > 0 ? UP : curPct < 0 ? DOWN : MUTED,
+            fontSize: compact ? 11 : 13,
+            fontWeight: 'bold',
+          },
+        }]),
+        ...(cumText ? [{
+          type: 'text', left: 'center', top: compact ? 2 : 1,
+          style: {
+            text: cumText,
+            fill: cumGrowth > 0 ? UP : cumGrowth < 0 ? DOWN : MUTED,
+            fontSize: compact ? 10 : 12,
+            fontWeight: 'bold',
+          },
+        }] : []),
+      ],
       legend: {
         data: ['价格', '均价'],
         top: 0, right: compact ? 8 : 20,
