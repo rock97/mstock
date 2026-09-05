@@ -148,9 +148,14 @@ body {
   max-width: 110px;
 }
 
-.row .mid { color: var(--muted); font-size: 11px; text-align: right; line-height: 1.3; }
-.row .price { text-align: right; font-variant-numeric: tabular-nums; }
-.row .badge { margin-left: auto; }
+.row .price {
+  margin-left: auto;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  font-weight: 600;
+  font-size: 14px;
+}
+.row .badge { flex-shrink: 0; }
 
 .badge {
   min-width: 76px;

@@ -27,8 +27,7 @@
         '<div class="row" data-full="' + esc(s.full) + '">' +
         '<span class="mk ' + F.marketTagClass(s.market) + '">' + F.marketName(s.market) + '</span>' +
         '<span class="name">' + esc(s.name || s.code) + '</span>' +
-        '<span class="code">' + esc(s.code) + '</span>' +
-        '<span class="mid">加载中…</span>' + del +
+        '<span class="price">--</span>' + del +
         '</div>'
       );
     }
@@ -37,11 +36,7 @@
       '<div class="row" data-full="' + esc(s.full) + '">' +
       '<span class="mk ' + F.marketTagClass(s.market) + '">' + F.marketName(s.market) + '</span>' +
       '<span class="name">' + esc(q.name) + '</span>' +
-      '<span class="code">' + esc(q.code) + '</span>' +
-      '<span class="price">' +
-      '<div>' + F.price(q.price) + '</div>' +
-      '<div style="color:' + F.color(q.pct) + ';font-size:11px">' + F.signed(q.change) + ' ' + pct + '</div>' +
-      '</span>' +
+      '<span class="price" style="color:' + F.color(q.pct) + '">' + F.price(q.price) + '</span>' +
       '<span class="badge" style="background:' + badgeBg(q.pct) + '">' + pct + '</span>' +
       del +
       '</div>'
