@@ -73,6 +73,7 @@
         '<div class="row" data-full="' + esc(s.full) + '">' +
         '<span class="mk ' + F.marketTagClass(s.market) + '">' + F.marketName(s.market) + '</span>' +
         '<span class="name">' + esc(s.name || s.code) + '</span>' +
+        '<span class="gap"></span>' +
         '<span class="spark"></span>' +
         '<span class="price">--</span>' + del +
         '</div>'
@@ -83,6 +84,7 @@
       '<div class="row" data-full="' + esc(s.full) + '">' +
       '<span class="mk ' + F.marketTagClass(s.market) + '">' + F.marketName(s.market) + '</span>' +
       '<span class="name">' + esc(q.name) + '</span>' +
+      '<span class="gap"></span>' +
       sparkSVG(s.full, q.pct) +
       '<span class="price" style="color:' + F.color(q.pct) + '">' + F.price(q.price) + '</span>' +
       '<span class="badge" style="background:' + badgeBg(q.pct) + '">' + pct + '</span>' +

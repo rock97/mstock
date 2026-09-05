@@ -145,8 +145,13 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  width: 96px;
+  flex-shrink: 0;
+}
+
+.row .gap {
   flex: 1;
-  min-width: 0;
+  min-width: 8px;
 }
 
 .row .spark {
