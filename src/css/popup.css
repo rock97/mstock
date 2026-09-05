@@ -145,11 +145,20 @@ body {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 110px;
+  flex: 1;
+  min-width: 0;
 }
 
+.row .spark {
+  flex-shrink: 0;
+  width: 77px;
+  height: 26px;
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.03);
+}
 .row .price {
-  margin-left: auto;
+  flex-shrink: 0;
+  width: 76px;
   text-align: right;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
@@ -296,3 +305,40 @@ body {
   color: #ff9c9c;
 }
 .dlg-err.hidden { display: none; }
+
+/* ===== 打赏 ===== */
+
+.donate-btn {
+  color: #fff;
+  background: linear-gradient(135deg, #e34d4d, #ff8a5c);
+  border-radius: 8px;
+  padding: 2px 10px;
+  cursor: pointer;
+  user-select: none;
+  font-size: 11px;
+}
+.donate-btn:hover { opacity: 0.88; }
+
+.donate-dialog { height: auto; max-height: 100%; }
+
+.donate-body {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 12px 18px;
+}
+#donateQr {
+  width: 180px;
+  height: 180px;
+  border-radius: 10px;
+  background: #fff;
+  padding: 8px;
+  object-fit: contain;
+}
+.donate-tip {
+  color: var(--muted);
+  font-size: 12px;
+  text-align: center;
+  line-height: 1.7;
+}

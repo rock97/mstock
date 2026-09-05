@@ -28,7 +28,21 @@
     <span id="statusText">数据来源：腾讯行情</span>
     <span id="refreshBtn" class="link">刷新</span>
     <span id="openDash" class="link">打开面板 ↗</span>
+    <span id="donateBtn" class="donate-btn" title="请作者喝杯咖啡">❤ 打赏</span>
   </footer>
+
+  <div id="donateOverlay" class="overlay hidden">
+    <div class="dialog donate-dialog">
+      <header class="dlg-head">
+        <span class="dlg-name">请作者喝杯咖啡 ☕</span>
+        <span id="donateClose" class="dlg-close" title="关闭">✕</span>
+      </header>
+      <div class="donate-body">
+        <img id="donateQr" src="icons/donate.png" alt="打赏二维码" />
+        <p class="donate-tip">如果这个插件帮到了你，欢迎扫码打赏<br/>你的支持是持续更新的动力</p>
+      </div>
+    </div>
+  </div>
 
   <div id="detailOverlay" class="overlay hidden">
     <div class="dialog">

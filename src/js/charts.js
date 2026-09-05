@@ -217,13 +217,7 @@
           },
         }] : []),
       ],
-      legend: {
-        data: ['价格', '均价'],
-        top: 0, right: compact ? 8 : 20,
-        textStyle: { color: MUTED, fontSize: compact ? 10 : 11 },
-        itemWidth: 12,
-        itemHeight: 8,
-      },
+      legend: { show: false },
       grid: grid,
       xAxis: [
         { type: 'category', data: labels, gridIndex: 0, boundaryGap: false, axisLabel: { show: false }, axisTick: { show: false }, axisLine: baseAxis.axisLine },

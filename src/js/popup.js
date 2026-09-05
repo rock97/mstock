@@ -14,6 +14,52 @@
 
   let editMode = false;
   let loadGen = 0;
+  const sparkCache = {};
+  let sparkLoadGen = 0;
+
+  function sparkSVG(full, pct) {
+    const prices = sparkCache[full];
+    if (!prices || prices.length < 2) return '<span class="spark"></span>';
+    const W = 77;
+    const H = 26;
+    const PAD = 2;
+    let lo = Infinity;
+    let hi = -Infinity;
+    for (const v of prices) {
+      if (v < lo) lo = v;
+      if (v > hi) hi = v;
+    }
+    const span = hi - lo || hi * 0.001 || 1;
+    const step = W / (prices.length - 1);
+    const pts = prices
+      .map((v, i) => (i * step).toFixed(1) + ',' + (H - PAD - ((v - lo) / span) * (H - PAD * 2)).toFixed(1))
+      .join(' ');
+    const color = pct > 0 ? 'var(--up)' : pct < 0 ? 'var(--down)' : 'var(--muted)';
+    return (
+      '<svg class="spark" viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none">' +
+      '<polyline points="' + pts + '" fill="none" stroke="' + color + '" stroke-width="1.2" /></svg>'
+    );
+  }
+
+  async function loadSparks(list) {
+    const gen = ++sparkLoadGen;
+    for (const s of list) {
+      if (sparkCache[s.full] || gen !== sparkLoadGen) continue;
+      try {
+        const t = await API.trend(s.full);
+        if (gen !== sparkLoadGen) return;
+        sparkCache[s.full] = t.rows.map((r) => r.price);
+        const cell = document.querySelector('.row[data-full="' + s.full + '"]');
+        if (cell) {
+          const q = (await Store.getQuotesCache())[s.full];
+          cell.outerHTML = rowHTML(s, q);
+        }
+      } catch (e) {
+        if (gen !== sparkLoadGen) return;
+        sparkCache[s.full] = [];
+      }
+    }
+  }
 
   function badgeBg(pct) {
     const n = Number(pct) || 0;
@@ -27,6 +73,7 @@
         '<div class="row" data-full="' + esc(s.full) + '">' +
         '<span class="mk ' + F.marketTagClass(s.market) + '">' + F.marketName(s.market) + '</span>' +
         '<span class="name">' + esc(s.name || s.code) + '</span>' +
+        '<span class="spark"></span>' +
         '<span class="price">--</span>' + del +
         '</div>'
       );
@@ -36,6 +83,7 @@
       '<div class="row" data-full="' + esc(s.full) + '">' +
       '<span class="mk ' + F.marketTagClass(s.market) + '">' + F.marketName(s.market) + '</span>' +
       '<span class="name">' + esc(q.name) + '</span>' +
+      sparkSVG(s.full, q.pct) +
       '<span class="price" style="color:' + F.color(q.pct) + '">' + F.price(q.price) + '</span>' +
       '<span class="badge" style="background:' + badgeBg(q.pct) + '">' + pct + '</span>' +
       del +
@@ -94,6 +142,7 @@
       await Store.setQuotesCache(qs);
       if (gen !== loadGen) return;
       listEl.innerHTML = list.map((s) => rowHTML(s, qs[s.full])).join('');
+      loadSparks(list);
       $('#statusText').textContent = '更新于 ' + new Date().toLocaleTimeString('zh-CN', { hour12: false });
     } catch (e) {
       if (gen === loadGen) $('#statusText').textContent = '行情加载失败：' + e.message;
@@ -178,7 +227,9 @@
     $('#stockList').addEventListener('click', (e) => {
       const del = e.target.closest('[data-del]');
       if (del) {
-        Store.removeStock(del.dataset.del).then(loadList);
+        const removed = del.dataset.del;
+        delete sparkCache[removed];
+        Store.removeStock(removed).then(loadList);
         return;
       }
       const row = e.target.closest('.row');
@@ -194,6 +245,15 @@
       Promise.all([loadTicker(), loadList()]);
     });
     $('#openDash').addEventListener('click', openDashboard);
+    $('#donateBtn').addEventListener('click', () => {
+      $('#donateOverlay').classList.remove('hidden');
+    });
+    $('#donateClose').addEventListener('click', () => {
+      $('#donateOverlay').classList.add('hidden');
+    });
+    $('#donateOverlay').addEventListener('click', (e) => {
+      if (e.target === $('#donateOverlay')) $('#donateOverlay').classList.add('hidden');
+    });
 
     $('#dClose').addEventListener('click', closeDetail);
     $('#detailOverlay').addEventListener('click', (e) => {
