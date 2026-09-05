@@ -131,39 +131,40 @@ body {
 .row {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
   padding: 8px 6px;
   border-radius: 8px;
   cursor: pointer;
 }
 .row:hover { background: var(--panel); }
 
-.row .mk { flex-shrink: 0; }
+.row .mk { flex-shrink: 0; margin-right: 2px; }
 
 .row .name {
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 96px;
+  width: 92px;
   flex-shrink: 0;
 }
 
 .row .gap {
   flex: 1;
-  min-width: 8px;
+  min-width: 2px;
 }
 
 .row .spark {
   flex-shrink: 0;
-  width: 96px;
+  width: 108px;
   height: 26px;
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.03);
 }
+.row .spark + .price { margin-left: 2px; }
 .row .price {
   flex-shrink: 0;
-  width: 76px;
+  width: 72px;
   text-align: right;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
