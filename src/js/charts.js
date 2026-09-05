@@ -111,6 +111,26 @@
     };
     const gTxt = (g) =>
       g == null ? ' 昨日:--' : ' 较昨日 ' + (g > 0 ? '+' : '') + g.toFixed(0) + '%';
+    // 开盘至今累计量/额（原始数据已是累计口径，直接取）
+    const cumNow = data.rows.map((r) => r.cumVol || 0);
+    const cumAmtNow = data.rows.map((r) => r.cumAmount || 0);
+    let prevCumVols = null;
+    let prevCumAmts = null;
+    if (data.prevRows && data.prevRows.length) {
+      const byTime = {};
+      for (const r of data.prevRows) byTime[r.time] = r;
+      const pc1 = [];
+      const pa1 = [];
+      for (const r of data.rows) {
+        const pr = byTime[r.time];
+        pc1.push(pr && pr.cumVol > 0 ? pr.cumVol : null);
+        pa1.push(pr && pr.cumAmount > 0 ? pr.cumAmount : null);
+      }
+      if (pc1.some((v) => v != null)) prevCumVols = pc1;
+      if (pa1.some((v) => v != null)) prevCumAmts = pa1;
+    }
+    const cgTxt = (g) =>
+      g == null ? ' 昨日同时刻:--' : ' 较昨日同时刻 ' + (g > 0 ? '+' : '') + g.toFixed(1) + '%';
     const lastPrice = prices.length ? prices[prices.length - 1] : null;
     const curPct = pc != null && lastPrice != null ? ((lastPrice - pc) / pc) * 100 : null;
 
@@ -137,15 +157,24 @@
           if (!list.length) return '';
           const i = list[0].dataIndex;
           const pm = perMin[i] || {};
+          // 开盘至当前时刻累计量/额 vs 昨日开盘至同一时刻累计
+          const cumV = cumNow[i];
+          const cumA = cumAmtNow[i];
+          const cumVp = prevCumVols ? prevCumVols[i] : null;
+          const cumAp = prevCumAmts ? prevCumAmts[i] : null;
           let html = list[0].axisValue;
           for (const p of list) {
             if (p.seriesName === '价格' || p.seriesName === '均价' || p.seriesName === '昨日量') continue;
             if (p.seriesName === '成交量') {
               const g = growth(pm.vol, prevVols ? prevVols[i] : null);
+              const cg = growth(cumV, cumVp);
               html += '<br/>量 <b>' + fmtBig(pm.vol) + '</b>' + gTxt(g);
+              html += '<br/>累计 ' + fmtBig(cumV) + cgTxt(cg);
             } else if (p.seriesName === '成交额') {
               const g = growth(pm.amount, prevAmounts ? prevAmounts[i] : null);
+              const cg = growth(cumA, cumAp);
               html += '<br/>额 <b>' + fmtBig(pm.amount) + '</b>' + gTxt(g);
+              html += '<br/>累计 ' + fmtBig(cumA) + cgTxt(cg);
             }
           }
           return html;
