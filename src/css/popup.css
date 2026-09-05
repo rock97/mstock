@@ -151,7 +151,7 @@ body {
 
 .row .spark {
   flex-shrink: 0;
-  width: 77px;
+  width: 96px;
   height: 26px;
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.03);
@@ -328,13 +328,24 @@ body {
   gap: 12px;
   padding: 14px 12px 18px;
 }
+.donate-qr-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
 #donateQr {
-  width: 180px;
-  height: 180px;
+  width: 200px;
+  height: 200px;
   border-radius: 10px;
   background: #fff;
-  padding: 8px;
+  padding: 6px;
   object-fit: contain;
+}
+.donate-channel {
+  font-size: 11px;
+  color: #2eaa6a;
+  font-weight: 600;
 }
 .donate-tip {
   color: var(--muted);
