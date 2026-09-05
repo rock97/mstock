@@ -134,20 +134,28 @@
     const lastPrice = prices.length ? prices[prices.length - 1] : null;
     const curPct = pc != null && lastPrice != null ? ((lastPrice - pc) / pc) * 100 : null;
 
-    // 截止当前时刻累计成交量 vs 昨日同一时刻累计量
+    // 截止当前时刻累计成交量/额 vs 昨日同一时刻累计
     const cumVolNow = data.rows.length ? (data.rows[data.rows.length - 1].cumVol || 0) : 0;
+    const cumAmtLast = data.rows.length ? (data.rows[data.rows.length - 1].cumAmount || 0) : 0;
     let cumVolPrevSameTime = null;
+    let cumAmtPrevSameTime = null;
     if (data.prevRows && data.prevRows.length) {
       const lastTime = data.rows[data.rows.length - 1].time;
       const byTime = {};
       for (const r of data.prevRows) byTime[r.time] = r;
       const pr = byTime[lastTime];
       if (pr && pr.cumVol > 0) cumVolPrevSameTime = pr.cumVol;
+      if (pr && pr.cumAmount > 0) cumAmtPrevSameTime = pr.cumAmount;
     }
     const cumGrowth = growth(cumVolNow, cumVolPrevSameTime);
     const cumText = cumGrowth == null
       ? ''
       : '量较昨日 ' + (cumGrowth > 0 ? '+' : '') + cumGrowth.toFixed(1) + '%';
+    // 成交额较昨日累计放量金额（绝对值）
+    const amtDelta = cumAmtLast > 0 && cumAmtPrevSameTime > 0 ? cumAmtLast - cumAmtPrevSameTime : null;
+    const amtDeltaText = amtDelta == null
+      ? ''
+      : '额较昨日' + (amtDelta > 0 ? '放量 ' : '缩量 ') + (amtDelta > 0 ? '+' : '-') + fmtBig(Math.abs(amtDelta));
 
     chart.setOption({
       animation: false,
@@ -195,6 +203,15 @@
           style: {
             text: cumText,
             fill: cumGrowth > 0 ? UP : cumGrowth < 0 ? DOWN : MUTED,
+            fontSize: compact ? 10 : 12,
+            fontWeight: 'bold',
+          },
+        }] : []),
+        ...(amtDeltaText ? [{
+          type: 'text', right: compact ? 8 : 20, top: compact ? 2 : 1,
+          style: {
+            text: amtDeltaText,
+            fill: amtDelta > 0 ? UP : amtDelta < 0 ? DOWN : MUTED,
             fontSize: compact ? 10 : 12,
             fontWeight: 'bold',
           },
