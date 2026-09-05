@@ -131,21 +131,21 @@ body {
 .row {
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 8px 6px;
+  gap: 3px;
+  padding: 8px 4px;
   border-radius: 8px;
   cursor: pointer;
 }
 .row:hover { background: var(--panel); }
 
-.row .mk { flex-shrink: 0; margin-right: 2px; }
+.row .mk { flex-shrink: 0; margin-right: 1px; }
 
 .row .name {
   font-weight: 600;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 92px;
+  width: 80px;
   flex-shrink: 0;
 }
 
@@ -156,7 +156,7 @@ body {
 
 .row .spark {
   flex-shrink: 0;
-  width: 108px;
+  width: 96px;
   height: 26px;
   border-radius: 4px;
   background: rgba(255, 255, 255, 0.03);
@@ -164,7 +164,7 @@ body {
 .row .spark + .price { margin-left: 2px; }
 .row .price {
   flex-shrink: 0;
-  width: 72px;
+  width: 66px;
   text-align: right;
   font-variant-numeric: tabular-nums;
   font-weight: 600;
@@ -173,12 +173,11 @@ body {
 .row .badge { flex-shrink: 0; }
 
 .badge {
-  min-width: 76px;
-  margin-left: auto;
+  min-width: 58px;
   text-align: center;
   color: #fff;
   border-radius: 6px;
-  padding: 3px 6px;
+  padding: 3px 4px;
   font-variant-numeric: tabular-nums;
   font-size: 12px;
 }

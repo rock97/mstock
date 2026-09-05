@@ -20,7 +20,7 @@
   function sparkSVG(full, pct) {
     const prices = sparkCache[full];
     if (!prices || prices.length < 2) return '<span class="spark"></span>';
-    const W = 108;
+    const W = 96;
     const H = 26;
     const PAD = 2;
     let lo = Infinity;
