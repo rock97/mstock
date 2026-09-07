@@ -151,6 +151,25 @@
     }
   }
 
+  let listTimer = null;
+  function anyMarketOpen() {
+    const codes = ['sh600519', 'hk00700', 'usAAPL.OQ'];
+    return codes.some((c) => API.marketStatus(c).open);
+  }
+
+  function scheduleListRefresh() {
+    clearTimeout(listTimer);
+    const tick = async () => {
+      if (document.hidden || $('#detailOverlay').classList.contains('hidden') === false) {
+        listTimer = setTimeout(tick, 1000);
+        return;
+      }
+      await loadList();
+      listTimer = setTimeout(tick, anyMarketOpen() ? 1000 : 30000);
+    };
+    listTimer = setTimeout(tick, 1000);
+  }
+
   async function renderResults(items) {
     const box = $('#searchResults');
     if (!items.length) {
@@ -443,12 +462,14 @@
       detailChart.dispose();
       detailChart = null;
     }
+    scheduleListRefresh();
   }
 
   async function init() {
     bindEvents();
     await loadTicker();
     await loadList();
+    scheduleListRefresh();
   }
 
   if (document.readyState === 'loading') {
