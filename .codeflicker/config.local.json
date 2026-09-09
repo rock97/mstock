@@ -1,0 +1,12 @@
+{
+  "permissions": {
+    "allow": [
+      "Fetch(domain:www.creprice.cn)",
+      "Fetch(domain:www.baidu.com)",
+      "Fetch(domain:bj.58.com)",
+      "Fetch(domain:www.sogou.com)",
+      "Fetch(domain:m.fang.com)",
+      "Fetch(domain:www.goofish.com)"
+    ]
+  }
+}

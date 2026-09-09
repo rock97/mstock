@@ -259,6 +259,46 @@
     }
   }
 
+  // 用分时接口的最新快照构造报价（比 qt 快照更及时），失败返回 null 由调用方回退
+  function quoteFromTrend(full, d, sym) {
+    try {
+      const arr = d && d.data && d.data.data;
+      const rows = parseTrendRows(arr || []);
+      if (!rows.length) return null;
+      const last = rows[rows.length - 1];
+      const qtArr = d && d.qt && d.qt[sym];
+      if (!qtArr || !qtArr[4]) return null;
+      const prevClose = parseFloat(qtArr[4]);
+      if (!isFinite(prevClose) || prevClose <= 0) return null;
+      let hi = -Infinity;
+      let lo = Infinity;
+      for (const r of rows) {
+        if (r.price > hi) hi = r.price;
+        if (r.price < lo) lo = r.price;
+      }
+      const change = +(last.price - prevClose).toFixed(4);
+      return {
+        full: full,
+        market: marketOf(full),
+        code: (qtArr[2] || String(full).slice(2)),
+        name: qtArr[1] || '',
+        price: last.price,
+        prevClose: prevClose,
+        open: rows[0].price,
+        vol: last.cumVol,
+        time: (d.data && d.data.date) || '',
+        change: change,
+        pct: +((change / prevClose) * 100).toFixed(2),
+        high: +hi.toFixed(4),
+        low: +lo.toFixed(4),
+        amount: last.cumAmount,
+        fromTrend: true,
+      };
+    } catch (e) {
+      return null;
+    }
+  }
+
   async function trend(full) {
     const sym = quoteSymbol(full);
     const json = JSON.parse(await getText(MINUTE_URL + encodeURIComponent(sym)));
@@ -287,6 +327,7 @@
       prevClose: isFinite(prevClose) ? prevClose : null,
       prevRows: prevDay ? prevDay.rows : null,
       prevDate: prevDay ? prevDay.date : '',
+      quote: quoteFromTrend(full, d, sym),
     };
   }
 
@@ -350,6 +391,7 @@
     quotes: quotes,
     search: search,
     kline: kline,
+    quoteFromTrend: quoteFromTrend,
     mkline: mkline,
     trend: trend,
     marketStatus: marketStatus,

@@ -139,8 +139,26 @@
       const cached = await Store.getQuotesCache();
       if (gen !== loadGen) return;
       listEl.innerHTML = list.map((s) => rowHTML(s, cached[s.full])).join('');
+      // qt 快照打底
       const qs = await API.quotes(list.map((s) => s.full));
       if (gen !== loadGen) return;
+      // 分时接口更及时：成功者覆盖 qt 结果
+      const trendQs = await Promise.all(
+        list.map(async (s) => {
+          try {
+            const sym = API.quoteSymbol(s.full);
+            const text = await API.getText('https://web.ifzq.gtimg.cn/appstock/app/minute/query?code=' + encodeURIComponent(sym));
+            const json = JSON.parse(text);
+            return API.quoteFromTrend(s.full, json && json.data && json.data[sym], sym);
+          } catch (e) {
+            return null;
+          }
+        })
+      );
+      if (gen !== loadGen) return;
+      list.forEach((s, i) => {
+        if (trendQs[i]) qs[s.full] = trendQs[i];
+      });
       await Store.setQuotesCache(qs);
       if (gen !== loadGen) return;
       listEl.innerHTML = list.map((s) => rowHTML(s, qs[s.full])).join('');
@@ -357,7 +375,7 @@
       '<span class="st">最高 <b style="color:' + F.color(q.high - q.prevClose) + '">' + F.price(q.high) + '</b></span>' +
       '<span class="st">最低 <b style="color:' + F.color(q.low - q.prevClose) + '">' + F.price(q.low) + '</b></span>' +
       '<span class="st">涨幅 <b style="color:' + F.color(q.pct) + '">' + F.pct(q.pct) + '</b></span>';
-    $('#dStatus').textContent = F.marketStatus(q.full).label;
+    $('#dStatus').textContent = API.marketStatus(q.full).label;
   }
 
   async function loadDetailChart() {
@@ -401,6 +419,25 @@
 
   let detailQuoteStopped = true;
 
+  // 详情页报价：分时接口实时刷新（含最新价/高低/累计量额），qt 接口兜底
+  async function refreshDetailQuote() {
+    if (!detailStock) return null;
+    try {
+      const sym = API.quoteSymbol(detailStock.full);
+      const text = await API.getText('https://web.ifzq.gtimg.cn/appstock/app/minute/query?code=' + encodeURIComponent(sym));
+      const json = JSON.parse(text);
+      const d = json && json.data && json.data[sym];
+      const q = API.quoteFromTrend(detailStock.full, d, sym);
+      if (q) return q;
+    } catch (e) {}
+    try {
+      const qs = await API.quotes([detailStock.full]);
+      return qs[detailStock.full];
+    } catch (e) {
+      return null;
+    }
+  }
+
   function scheduleDetailQuote() {
     detailQuoteStopped = false;
     const tick = async () => {
@@ -409,10 +446,8 @@
         detailQuoteStopped = true;
         return;
       }
-      try {
-        const qs = await API.quotes([detailStock.full]);
-        if (!detailQuoteStopped) renderDetailQuote(qs[detailStock.full]);
-      } catch (e) {}
+      const q = await refreshDetailQuote();
+      if (!detailQuoteStopped && q) renderDetailQuote(q);
       if (!detailQuoteStopped) detailQuoteTimer = setTimeout(tick, 1000);
     };
     detailQuoteTimer = setTimeout(tick, 1000);
@@ -438,10 +473,8 @@
     $('#detailOverlay').classList.remove('hidden');
     syncMinuteTabs();
     await refreshDetailWatch();
-    try {
-      const qs = await API.quotes([item.full]);
-      renderDetailQuote(qs[item.full]);
-    } catch (e) {}
+    const q0 = await refreshDetailQuote();
+    if (q0) renderDetailQuote(q0);
     switchDetailRange(detailRange);
     scheduleDetailQuote();
   }
