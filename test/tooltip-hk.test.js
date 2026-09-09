@@ -19,29 +19,20 @@ function fail(m) { console.error('FAIL:', m); process.exit(1); }
   w.eval(fs.readFileSync(path.join(ROOT, 'src/js/format.js'), 'utf8'));
   w.eval(fs.readFileSync(path.join(ROOT, 'src/js/api.js'), 'utf8'));
   w.eval(fs.readFileSync(path.join(ROOT, 'src/js/charts.js'), 'utf8'));
-  const data = await w.MSApi.trend('sh600519');
+  const data = await w.MSApi.trend('hk00700');
   w.MSCharts.trendChart(w.document.querySelector('#c'), data, { compact: true });
   await wait(200);
-  const texts = (lastOpt.graphic || []).map((g) => g.style.text);
-  console.log('graphics:', JSON.stringify(texts));
-  const amtT = texts.find((t) => /额较昨日(放量|缩量)/.test(t));
-  if (!amtT) fail('成交额放量文本缺失');
-  // 数值验证
-  const lastTime = data.rows[data.rows.length - 1].time;
-  const prev = data.prevRows.find((r) => r.time === lastTime);
-  const delta = data.rows[data.rows.length - 1].cumAmount - prev.cumAmount;
-  const expectStr = (delta > 0 ? '放量' : '缩量');
-  if (!amtT.includes(expectStr)) fail('放量/缩量方向错误: ' + amtT);
-  const deltaYi = Math.abs(delta) / 1e8;
-  const shown = amtT.match(/([0-9.]+)(亿|万)/);
-  const shownVal = parseFloat(shown[1]) * (shown[2] === '亿' ? 1e8 : 1e4);
-  if (Math.abs(shownVal - Math.abs(delta)) / Math.abs(delta) > 0.02) fail('数值偏差>2%: shown=' + shownVal + ' want=' + Math.abs(delta));
-  console.log('delta:', (delta / 1e8).toFixed(2) + '亿', '| shown:', amtT);
-  // 颜色方向
-  const g = (lastOpt.graphic || []).find((x) => /额较昨日/.test(x.style.text));
-  const expectColor = delta > 0 ? '#e34d4d' : '#3fae6a';
-  if (g.style.fill !== expectColor) fail('颜色方向错误');
-  console.log('color ok:', g.style.fill);
-  console.log('\nAMT DELTA TESTS PASSED');
+  const i = 120;
+  const html = lastOpt.tooltip.formatter([
+    { dataIndex: i, axisValue: '10:30', seriesName: '成交量', value: 1 },
+  ]);
+  console.log('HK tooltip:', html.slice(0, 150));
+  const a = (lastOpt.series.find((s) => s.name === '均价') || {}).data || [];
+  const avg120 = a[120];
+  console.log('HK 均价@120:', avg120, '(应在股价附近 433~445)');
+  if (!(avg120 > 400 && avg120 < 500)) fail('HK 均价单位错误: ' + avg120);
+  const p = data.rows[120].price;
+  if (!html.includes(p.toFixed(2))) fail('HK 价格未显示');
+  console.log('HK AVG TESTS PASSED');
   process.exit(0);
 })().catch(e => { console.error('ERROR:', e); process.exit(1); });

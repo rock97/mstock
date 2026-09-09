@@ -22,26 +22,21 @@ function fail(m) { console.error('FAIL:', m); process.exit(1); }
   const data = await w.MSApi.trend('sh600519');
   w.MSCharts.trendChart(w.document.querySelector('#c'), data, { compact: true });
   await wait(200);
-  const texts = (lastOpt.graphic || []).map((g) => g.style.text);
-  console.log('graphics:', JSON.stringify(texts));
-  const amtT = texts.find((t) => /额较昨日(放量|缩量)/.test(t));
-  if (!amtT) fail('成交额放量文本缺失');
+  const i = 120;
+  const html = lastOpt.tooltip.formatter([
+    { dataIndex: i, axisValue: '10:30', seriesName: '成交量', value: 1 },
+    { dataIndex: i, seriesName: '成交额', value: 1 },
+    { dataIndex: i, seriesName: '价格', value: 1 },
+  ]);
+  console.log('tooltip @', data.rows[i].time, ':', html);
+  if (!/价 <b/.test(html)) fail('缺少价格行');
+  if (!/%/.test(html)) fail('缺少涨幅');
   // 数值验证
-  const lastTime = data.rows[data.rows.length - 1].time;
-  const prev = data.prevRows.find((r) => r.time === lastTime);
-  const delta = data.rows[data.rows.length - 1].cumAmount - prev.cumAmount;
-  const expectStr = (delta > 0 ? '放量' : '缩量');
-  if (!amtT.includes(expectStr)) fail('放量/缩量方向错误: ' + amtT);
-  const deltaYi = Math.abs(delta) / 1e8;
-  const shown = amtT.match(/([0-9.]+)(亿|万)/);
-  const shownVal = parseFloat(shown[1]) * (shown[2] === '亿' ? 1e8 : 1e4);
-  if (Math.abs(shownVal - Math.abs(delta)) / Math.abs(delta) > 0.02) fail('数值偏差>2%: shown=' + shownVal + ' want=' + Math.abs(delta));
-  console.log('delta:', (delta / 1e8).toFixed(2) + '亿', '| shown:', amtT);
-  // 颜色方向
-  const g = (lastOpt.graphic || []).find((x) => /额较昨日/.test(x.style.text));
-  const expectColor = delta > 0 ? '#e34d4d' : '#3fae6a';
-  if (g.style.fill !== expectColor) fail('颜色方向错误');
-  console.log('color ok:', g.style.fill);
-  console.log('\nAMT DELTA TESTS PASSED');
+  const p = data.rows[i].price;
+  const expectPct = ((p - data.prevClose) / data.prevClose * 100).toFixed(2);
+  if (!html.includes(p.toFixed(2))) fail('价格数值不匹配');
+  if (!html.includes(expectPct)) fail('涨幅数值不匹配: want ' + expectPct);
+  if (!/均价/.test(html)) fail('缺少均价行');
+  console.log('\nTOOLTIP PRICE TESTS PASSED');
   process.exit(0);
 })().catch(e => { console.error('ERROR:', e); process.exit(1); });

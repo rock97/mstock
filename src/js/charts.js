@@ -61,12 +61,14 @@
     const avg = [];
     let lastAmt = 0;
     let lastVol = 0;
+    const isAShare = ['sh', 'sz', 'bj'].indexOf(String(data.market || '').slice(0, 2)) >= 0;
+    const volUnit = isAShare ? 100 : 1;
     const perMin = data.rows.map((r) => {
       const dv = Math.max(0, (r.cumVol || 0) - lastVol);
       const da = Math.max(0, (r.cumAmount || 0) - lastAmt);
       lastVol = r.cumVol || 0;
       lastAmt = r.cumAmount || 0;
-      avg.push(dv > 0 ? +(da / dv).toFixed(4) : null);
+      avg.push(dv > 0 ? +(da / (dv * volUnit)).toFixed(4) : null);
       // 午休补位行（累计与前一分钟相同）量额记 0，避免虚假柱
       const flat = dv === 0 && da === 0 && avg.length > 1;
       return { vol: flat ? 0 : dv, amount: flat ? 0 : da };
@@ -171,6 +173,19 @@
           const cumVp = prevCumVols ? prevCumVols[i] : null;
           const cumAp = prevCumAmts ? prevCumAmts[i] : null;
           let html = list[0].axisValue;
+          // 当时价格与涨幅（昨收基准，红涨绿跌）
+          const pNow = prices[i];
+          if (pNow != null && pc != null) {
+            const pct = ((pNow - pc) / pc) * 100;
+            const cls = pct > 0 ? UP : pct < 0 ? DOWN : MUTED;
+            html +=
+              '<br/>价 <b style="color:' + cls + '">' + pNow.toFixed(2) + '</b>' +
+              ' <span style="color:' + cls + '">' + (pct > 0 ? '+' : '') + pct.toFixed(2) + '%</span>';
+          }
+          const aNow = avg[i];
+          if (aNow != null) {
+            html += '<br/>均价 <span style="color:#f5c542">' + aNow.toFixed(2) + '</span>';
+          }
           for (const p of list) {
             if (p.seriesName === '价格' || p.seriesName === '均价' || p.seriesName === '昨日量') continue;
             if (p.seriesName === '成交量') {

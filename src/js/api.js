@@ -323,6 +323,7 @@
     }
     return {
       date: (d.data && d.data.date) || '',
+      market: marketOf(full),
       rows: rows,
       prevClose: isFinite(prevClose) ? prevClose : null,
       prevRows: prevDay ? prevDay.rows : null,
